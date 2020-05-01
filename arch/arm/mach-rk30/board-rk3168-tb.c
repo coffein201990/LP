@@ -1020,6 +1020,7 @@ static struct platform_device irda_device = {
 #ifdef CONFIG_ION
 #define ION_RESERVE_SIZE        (100 * SZ_1M)
 #define ION_RESERVE_SIZE_120M   (120 * SZ_1M)
+#define ION_RESERVE_SIZE_220M   (220 * SZ_1M)
 static struct ion_platform_data rk30_ion_pdata = {
 	.nr = 1,
 	.heaps = {
@@ -2871,18 +2872,21 @@ static void __init rk30_reserve(void)
 #ifdef CONFIG_ION
 	size = ddr_get_cap() >> 20;
 	if(size >= 1024) { // DDR >= 1G, set ion to 120M
-		rk30_ion_pdata.heaps[0].size = ION_RESERVE_SIZE_120M;
-		ion_reserve_size = ION_RESERVE_SIZE_120M;
+		rk30_ion_pdata.heaps[0].size = ION_RESERVE_SIZE_220M;
+		ion_reserve_size = ION_RESERVE_SIZE_220M;
 	}
 	else {
 		rk30_ion_pdata.heaps[0].size = ION_RESERVE_SIZE;
 		ion_reserve_size = ION_RESERVE_SIZE;
 	}
+	rk30_ion_pdata.heaps[0].size += get_fb_size();
+	ion_reserve_size += get_fb_size();
 	printk("ddr size = %d M, set ion_reserve_size size to %d\n", size, ion_reserve_size);
 	//rk30_ion_pdata.heaps[0].base = board_mem_reserve_add("ion", ION_RESERVE_SIZE);
 	rk30_ion_pdata.heaps[0].base = board_mem_reserve_add("ion", ion_reserve_size);
 #endif
-#ifdef CONFIG_FB_ROCKCHIP
+//#ifdef CONFIG_FB_ROCKCHIP
+#if 0
 	resource_fb[0].start = board_mem_reserve_add("fb0 buf", get_fb_size());
 	resource_fb[0].end = resource_fb[0].start + get_fb_size()- 1;
 #if 0
